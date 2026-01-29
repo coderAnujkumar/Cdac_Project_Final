@@ -95,7 +95,9 @@
             <h5 class="fw-bold mb-0">
                 <i class="bi bi-person-lines-fill"></i> Registered Citizens
             </h5>
-            <input type="text" class="form-control w-25" placeholder="Search citizens (UI)">
+            <input type="text" id="searchInput" class="form-control w-25"
+       placeholder="Search citizens..." onkeyup="filterCitizens()">
+
         </div>
 
         <div class="table-responsive">
@@ -110,7 +112,7 @@
                 </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="citizenTable">
                 <tr th:each="c : ${citizens}">
                     <td class="fw-semibold" th:text="${c.citizenId}"></td>
                     <td th:text="${c.name}"></td>
@@ -138,6 +140,30 @@
     </div>
 
 </div>
+<script>
+function filterCitizens() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#citizenTable tr");
+
+    rows.forEach(row => {
+        const name = row.cells[1].innerText.toLowerCase();   // Name
+        const email = row.cells[2].innerText.toLowerCase();  // Email
+        const mobile = row.cells[3].innerText.toLowerCase(); // Mobile
+        const status = row.cells[4].innerText.toLowerCase(); // Status
+
+        if (
+            name.includes(input) ||
+            email.includes(input) ||
+            mobile.includes(input) ||
+            status.includes(input)
+        ) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+</script>
 
 </body>
 </html>

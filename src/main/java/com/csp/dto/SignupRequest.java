@@ -16,6 +16,9 @@ public class SignupRequest {
     private String password;
 
     private String role;
+    @NotBlank(message = "Mobile is required")
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Enter valid 10 digit mobile number")
+    private String mobile;
 
     
     // Constructor
@@ -24,16 +27,21 @@ public class SignupRequest {
 		// TODO Auto-generated constructor stub
 	}
 
-	public SignupRequest(@NotBlank(message = "Name is required") String name,
-			@Email(message = "Enter valid email") @NotBlank(message = "Email is required") String email,
-			@Size(min = 6, message = "Password must be at least 6 characters") String password, String role) {
-		super();
-		this.name = name;
-		this.email = email;
-		this.password = password;
-		this.role = role;
+	public SignupRequest(
+	        @NotBlank(message = "Name is required") String name,
+	        @Email(message = "Enter valid email") 
+	        @NotBlank(message = "Email is required") String email,
+	        @Size(min = 6, message = "Password must be at least 6 characters") String password,
+	        String role,
+	        @NotBlank(message = "Mobile is required") String mobile
+	) {
+	    this.name = name;
+	    this.email = email;
+	    this.password = password;
+	    this.role = role;
+	    this.mobile = mobile;
 	}
-	
+
 	
 	 // getters & setters
 
@@ -68,7 +76,14 @@ public class SignupRequest {
 	public void setRole(String role) {
 		this.role = role;
 	}
-    
+	public String getMobile() {
+	    return mobile;
+	}
+
+	public void setMobile(String mobile) {
+	    this.mobile = mobile;
+	}
+
     
 
    

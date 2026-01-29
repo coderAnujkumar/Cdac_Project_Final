@@ -121,6 +121,14 @@ body{
                 <input type="email" th:field="*{email}" class="form-control" placeholder="Enter your email">
                 <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
             </div>
+			            <div class="mb-3">
+			    <label class="form-label">Mobile</label>
+			    <input type="text" th:field="*{mobile}" class="form-control" placeholder="Enter mobile number">
+			    <small class="text-danger"
+			           th:if="${#fields.hasErrors('mobile')}"
+			           th:errors="*{mobile}"></small>
+			</div>
+			           
 
             <div class="form-check mb-4">
                 <input class="form-check-input" type="checkbox">

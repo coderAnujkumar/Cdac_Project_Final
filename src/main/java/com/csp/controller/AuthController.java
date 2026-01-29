@@ -76,6 +76,7 @@ public class AuthController {
             Citizen citizen = new Citizen();  //create an object of citizen
             citizen.setName(signup.getName());
             citizen.setEmail(signup.getEmail());
+            citizen.setMobile(signup.getMobile());   // ✅ added
             citizen.setPassword(user.getPassword()); // encrypted password
             citizen.setStatus(activeStatus);
 

@@ -106,7 +106,9 @@
             <h5 class="page-title mb-0">
                 <i class="bi bi-folder2-open"></i> All System Applications
             </h5>
-            <input type="text" class="form-control w-25" placeholder="Search (UI only)">
+            <input type="text" id="searchInput" class="form-control w-25"
+       placeholder="Search by service..." onkeyup="filterTable()">
+
         </div>
 
         <div class="table-responsive">
@@ -121,7 +123,7 @@
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="applicationTable">
                     <tr th:each="app : ${applications}">
                         <td class="fw-semibold" th:text="${app.applicationId}"></td>
                         <td th:text="${app.citizen.name}"></td>
@@ -151,6 +153,25 @@
     </div>
 
 </div>
+<script>
+function filterTable() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#applicationTable tr");
+
+    rows.forEach(row => {
+        const service = row.cells[2].innerText.toLowerCase(); // Service
+        const citizen = row.cells[1].innerText.toLowerCase(); // Citizen
+        const status = row.cells[3].innerText.toLowerCase();  // Status
+
+        if (service.includes(input) || citizen.includes(input) || status.includes(input)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+</script>
+
 
 </body>
 </html>

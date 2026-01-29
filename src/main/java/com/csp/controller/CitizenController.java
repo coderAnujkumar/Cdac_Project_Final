@@ -18,7 +18,7 @@ import com.csp.service.CitizenService;
 import com.csp.service.DocumentService;
 
 @Controller
-@RequestMapping("/citizen")
+@RequestMapping("/citizen") // coomen for all url first citizen come and then any api link 
 public class CitizenController {
 
     @Autowired

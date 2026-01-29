@@ -55,11 +55,21 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
 
                 // 🌍 PUBLIC PAGES
-                .requestMatchers("/", "/index", "/home").permitAll()
-                .requestMatchers("/login", "/register", "/signup").permitAll()
+                .requestMatchers(
+                    "/",
+                    "/index",
+                    "/home",
+                    "/login",
+                    "/signup",
+                    "/register",
+                    "/forgot-password",
+                    "/reset-password"
+                ).permitAll()
+
+                // 🌐 STATIC RESOURCES
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
-                // 📄 DOCUMENT VIEW / DOWNLOAD
+                // 📄 DOCUMENT ACCESS
                 .requestMatchers("/documents/**")
                     .hasAnyRole("CITIZEN", "CLERK", "OFFICER", "ADMIN")
 

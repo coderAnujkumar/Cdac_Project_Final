@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard | CSP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, #0f172a, #1e293b);
+            padding: 15px 30px;
+            color: white;
+        }
+
+        .card-box {
+            border-radius: 14px;
+            border: none;
+            transition: 0.3s ease;
+        }
+
+        .card-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        footer {
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 12px;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<!-- 🔷 HEADER -->
+<div class="topbar d-flex justify-content-between align-items-center shadow-sm">
+    <h4 class="mb-0"><i class="bi bi-speedometer2"></i> CSP Admin Dashboard</h4>
+    <form th:action="@{/logout}" method="post">
+        <button class="btn btn-danger btn-sm">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+    </form>
+</div>
+
+<div class="container mt-4 flex-grow-1">
+
+    <h5 class="mb-4 fw-semibold text-secondary">System Overview</h5>
+
+    <!-- 📊 STAT CARDS -->
+    <div class="row text-center mb-4 g-4">
+
+        <div class="col-md-4">
+            <div class="card card-box p-4 bg-white">
+                <div class="stat-icon text-primary">
+                    <i class="bi bi-file-earmark-text"></i>
+                </div>
+                <h6>Total Applications</h6>
+                <h2 class="fw-bold" th:text="${totalApps}">0</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-box p-4 bg-white">
+                <div class="stat-icon text-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <h6>Approved</h6>
+                <h2 class="fw-bold text-success" th:text="${approvedApps}">0</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card card-box p-4 bg-white">
+                <div class="stat-icon text-danger">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <h6>Rejected</h6>
+                <h2 class="fw-bold text-danger" th:text="${rejectedApps}">0</h2>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 📈 GRAPH SECTION (FOR YOUR FEATURE) -->
+    <div class="card card-box p-4 mb-4">
+        <h6 class="mb-3"><i class="bi bi-bar-chart-line"></i> Application Analytics</h6>
+        <canvas id="appChart" height="100"></canvas>
+    </div>
+
+    <!-- ⚙ ACTION CARDS -->
+    <div class="row g-4">
+
+        <div class="col-md-3">
+            <div class="card card-box text-center p-4 bg-white">
+                <i class="bi bi-person-plus-fill text-primary fs-2"></i>
+                <h6 class="mt-2">Create Users</h6>
+                <p class="small text-muted">Add Clerk or Officer</p>
+                <a th:href="@{/admin/create-user}" class="btn btn-primary btn-sm">Open</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-box text-center p-4 bg-white">
+                <i class="bi bi-person-gear text-warning fs-2"></i>
+                <h6 class="mt-2">Manage Users</h6>
+                <p class="small text-muted">Enable / Disable accounts</p>
+                <a th:href="@{/admin/manage-users}" class="btn btn-warning btn-sm">Manage</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-box text-center p-4 bg-white">
+                <i class="bi bi-folder2-open text-dark fs-2"></i>
+                <h6 class="mt-2">All Applications</h6>
+                <p class="small text-muted">Monitor system requests</p>
+                <a th:href="@{/admin/applications}" class="btn btn-dark btn-sm">View</a>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-box text-center p-4 bg-white">
+                <i class="bi bi-people-fill text-info fs-2"></i>
+                <h6 class="mt-2">Citizens</h6>
+                <p class="small text-muted">Registered users</p>
+                <a th:href="@{/admin/citizens}" class="btn btn-info btn-sm">View</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<footer class="mt-auto">
+    © 2026 Citizen Service Portal | Admin Control System
+</footer>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('appChart');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Submitted', 'Verified', 'Approved', 'Rejected'],
+            datasets: [{
+                label: 'Applications',
+                data: [12, 8, 15, 3], // You will make this dynamic later
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+
+</body>
+</html>

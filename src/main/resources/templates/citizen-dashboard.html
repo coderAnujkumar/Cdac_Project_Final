@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: header('Citizen Dashboard | CSP')}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<style>
+body { background: linear-gradient(135deg, #e0f2fe, #f8fafc); }
+.hero-banner { background: linear-gradient(135deg, #06b6d4, #0d9488); border-radius:18px; box-shadow:0 15px 30px rgba(0,0,0,0.15);}
+.hero-content{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+.history-toggle-btn{ border:1px solid white; background: transparent; color:white; border-radius:50px; padding:8px 16px; transition:0.3s;}
+.history-toggle-btn:hover{ background:white; color:#0d9488;}
+.dashboard-card { border-radius:18px; background:white; box-shadow:0 10px 25px rgba(0,0,0,0.08); transition:0.3s;}
+.dashboard-card:hover { transform: translateY(-8px) scale(1.02); box-shadow:0 18px 40px rgba(0,0,0,0.18);}
+.table thead { background: linear-gradient(135deg, #2563eb, #1d4ed8); color:white;}
+.table tbody tr:hover { background:#f1f5ff;}
+.badge { padding:7px 14px; border-radius:20px; font-size:0.75rem;}
+#historySection{ display:none;}
+</style>
+
+<main class="container my-4">
+
+<!-- 🔔 SYSTEM ALERTS -->
+<div th:if="${success}" class="alert alert-success text-center shadow-sm">
+    <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="alert alert-danger text-center shadow-sm">
+    <span th:text="${error}"></span>
+</div>
+
+<!-- 🔷 HERO -->
+<div class="hero-banner p-4 mb-4 text-white">
+    <div class="hero-content">
+
+        
+
+        <div class="d-flex gap-2">
+            <button class="history-toggle-btn" onclick="toggleHistory()"
+                    th:text="#{dashboard.history}">History</button>
+
+            
+        </div>
+
+        <!-- 🌐 LANGUAGE BUTTONS -->
+        <div class="d-flex gap-2 mt-2">
+            <a href="?lang=en" class="btn btn-light btn-sm">English</a>
+            <a href="?lang=hi" class="btn btn-light btn-sm">हिंदी</a>
+            <a href="?lang=mr" class="btn btn-light btn-sm">मराठी</a>
+        </div>
+
+    </div>
+</div>
+
+<!-- 📊 STATS -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+            <div class="card dashboard-card text-center p-4">
+                <i class="bi bi-file-earmark-plus text-primary fs-3 mb-2"></i>
+                <h6>Apply Service</h6>
+                <a th:href="@{/citizen/apply}" class="btn btn-primary btn-sm">Apply Now</a>
+            </div>
+        </div>
+
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center p-4">
+            <div class="display-6 text-success" th:text="${applications.size()}"></div>
+            <small th:text="#{dashboard.total}">Total Applications</small>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center p-4">
+            <div class="display-6 text-success"
+                 th:text="${#lists.size(applications.?[status=='APPROVED'])}"></div>
+            <small th:text="#{dashboard.approved}">Approved</small>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card dashboard-card text-center p-4">
+            <div class="display-6 text-danger"
+                 th:text="${#lists.size(applications.?[status.startsWith('REJECTED')])}"></div>
+            <small th:text="#{dashboard.rejected}">Rejected</small>
+        </div>
+    </div>
+
+</div>
+
+<!-- 📊 CHART -->
+<div class="card dashboard-card p-4 mb-4">
+    <h5 class="mb-3" th:text="#{dashboard.overview}">Application Status Overview</h5>
+    <div style="max-width:350px;margin:auto;">
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+<!-- 📋 APPLICATION HISTORY -->
+<div id="historySection" class="card dashboard-card border-0">
+
+    <div class="card-header bg-white">
+        <h5 class="mb-0" th:text="#{dashboard.myApplications}">My Applications</h5>
+    </div>
+
+    <div class="card-body table-responsive">
+        <table class="table align-middle text-center">
+
+            <thead>
+            <tr>
+                <th th:text="#{table.id}">ID</th>
+                <th th:text="#{table.service}">Service</th>
+                <th th:text="#{table.date}">Date</th>
+                <th th:text="#{table.status}">Status</th>
+                <th th:text="#{table.actions}">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+            <tr th:each="app : ${applications}">
+                <td th:text="${app.applicationId}"></td>
+                <td th:text="${app.serviceType}"></td>
+                <td th:text="${#temporals.format(app.applicationDate, 'dd-MM-yyyy')}"></td>
+
+                <td>
+                    <span th:if="${app.status=='SUBMITTED'}" class="badge bg-warning"
+                          th:text="#{status.submitted}">Submitted</span>
+
+                    <span th:if="${app.status=='VERIFIED'}" class="badge bg-info"
+                          th:text="#{status.verified}">Verified</span>
+
+                    <span th:if="${app.status=='APPROVED'}" class="badge bg-success"
+                          th:text="#{status.approved}">Approved</span>
+
+                    <span th:if="${app.status.startsWith('REJECTED')}" class="badge bg-danger"
+                          th:text="#{status.rejected}">Rejected</span>
+                </td>
+
+                <td>
+                    <a th:href="@{/citizen/application/{id}(id=${app.applicationId})}"
+                       class="btn btn-outline-primary btn-sm rounded-pill"
+                       th:text="#{table.details}">Details</a>
+
+                    <a th:if="${app.status=='APPROVED' and app.certificatePath!=null}"
+                       th:href="@{/certificate/download/{id}(id=${app.applicationId})}"
+                       class="btn btn-success btn-sm rounded-pill ms-1"
+                       th:text="#{table.certificate}">Certificate</a>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(applications)}">
+                <td colspan="5" class="text-muted py-4" th:text="#{no.applications}">
+                    No applications yet.
+                </td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+setTimeout(() => {
+  document.querySelectorAll('.alert').forEach(el => el.style.display='none');
+}, 4000);
+
+function toggleHistory(){
+    const box = document.getElementById("historySection");
+    if(box.style.display === "none" || box.style.display === ""){
+        box.style.display = "block";
+        box.scrollIntoView({behavior:"smooth"});
+    }else{
+        box.style.display = "none";
+    }
+}
+
+const approved = [[${#lists.size(applications.?[status=='APPROVED'])}]];
+const rejected = [[${#lists.size(applications.?[status.startsWith('REJECTED')])}]];
+const submitted = [[${#lists.size(applications.?[status=='SUBMITTED'])}]];
+
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Approved', 'Rejected', 'Submitted'],
+        datasets: [{
+            data: [approved, rejected, submitted],
+            backgroundColor: ['#22c55e', '#ef4444', '#facc15']
+        }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+});
+</script>
+
+</body>
+</html>

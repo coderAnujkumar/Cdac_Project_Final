@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Users | Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, #0f172a, #1e293b);
+            padding: 15px 30px;
+            color: white;
+        }
+
+        .card-box {
+            border-radius: 14px;
+            border: none;
+        }
+
+        table th {
+            font-weight: 600;
+        }
+
+        table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .action-btn {
+            min-width: 90px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 🔷 HEADER -->
+<div class="topbar d-flex justify-content-between align-items-center shadow-sm">
+    <h5 class="mb-0"><i class="bi bi-people-fill"></i> Manage System Users</h5>
+    <a th:href="@{/admin/dashboard}" class="btn btn-light btn-sm">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="container mt-4">
+
+    <!-- ================= CLERKS ================= -->
+    <div class="card card-box shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-person-badge"></i> Clerks
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle text-center mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="c : ${clerks}">
+                        <td class="fw-semibold" th:text="${c.name}"></td>
+                        <td th:text="${c.email}"></td>
+
+                        <td>
+                            <span th:if="${c.enabled}" class="badge bg-success px-3">Active</span>
+                            <span th:unless="${c.enabled}" class="badge bg-danger px-3">Disabled</span>
+                        </td>
+
+                        <td>
+                            <a th:href="@{/admin/clerk/toggle/{id}(id=${c.clerkId})}"
+                               class="btn btn-outline-warning btn-sm action-btn"
+                               th:attr="onclick=|return confirmToggle('Clerk','${c.name}',${c.enabled})|">
+                                <i class="bi bi-power"></i> Toggle
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================= OFFICERS ================= -->
+    <div class="card card-box shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <i class="bi bi-person-workspace"></i> Officers
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle text-center mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="o : ${officers}">
+                        <td class="fw-semibold" th:text="${o.name}"></td>
+                        <td th:text="${o.email}"></td>
+
+                        <td>
+                            <span th:if="${o.enabled}" class="badge bg-success px-3">Active</span>
+                            <span th:unless="${o.enabled}" class="badge bg-danger px-3">Disabled</span>
+                        </td>
+
+                        <td>
+                            <a th:href="@{/admin/officer/toggle/{id}(id=${o.officerId})}"
+                               class="btn btn-outline-warning btn-sm action-btn"
+                               th:attr="onclick=|return confirmToggle('Officer','${o.name}',${o.enabled})|">
+                                <i class="bi bi-power"></i> Toggle
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- 🔥 Confirmation Script -->
+<script>
+function confirmToggle(role, name, isEnabled) {
+    let action = isEnabled ? "DISABLE" : "ENABLE";
+    return confirm(
+        action + " this " + role + "?\n\n" +
+        "Name: " + name + "\n\n" +
+        (isEnabled ? "User will NOT be able to login." : "User will be able to login again.")
+    );
+}
+</script>
+
+</body>
+</html>

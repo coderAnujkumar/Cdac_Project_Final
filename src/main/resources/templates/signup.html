@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Signup | CSP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    background:#05b3a4;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Poppins', sans-serif;
+}
+
+/* MAIN CARD */
+.signup-wrapper{
+    width:90%;
+    max-width:1200px;
+    background:#e9fbf9;
+    border-radius:25px;
+    padding:60px;
+    display:flex;
+    gap:40px;
+}
+
+/* LEFT FORM */
+.signup-left{
+    width:50%;
+}
+
+.signup-left h2{
+    font-weight:600;
+}
+
+.signup-left a{
+    text-decoration:none;
+    color:#0f766e;
+    font-weight:500;
+}
+
+.form-label{
+    font-weight:500;
+}
+
+.form-control{
+    border-radius:12px;
+    padding:10px 15px;
+}
+
+/* SUBMIT */
+.btn-submit{
+    background:#14b8a6;
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:10px 30px;
+}
+
+.btn-submit:hover{
+    background:#0d9488;
+}
+
+/* RIGHT IMAGE */
+.signup-right{
+    width:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.signup-right img{
+    width:85%;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+    .signup-wrapper{
+        flex-direction:column;
+        padding:30px;
+    }
+    .signup-left,.signup-right{
+        width:100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="signup-wrapper">
+
+    <!-- LEFT -->
+    <div class="signup-left">
+
+        <h2>Sign Up</h2>
+        <p>Already have an account? <a th:href="@{/login}">Login</a></p>
+
+        <form th:action="@{/signup}" th:object="${signup}" method="post">
+
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" th:field="*{name}" class="form-control" placeholder="Enter your name">
+                <small class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" th:field="*{password}" class="form-control" placeholder="Enter your password">
+                <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" th:field="*{email}" class="form-control" placeholder="Enter your email">
+                <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox">
+                <label class="form-check-label">
+                    Click the box to get updates and news
+                </label>
+            </div>
+
+            <input type="hidden" th:field="*{role}" value="ROLE_CITIZEN"/>
+
+            <button type="submit" class="btn-submit">Submit</button>
+
+            <p class="text-success mt-2" th:if="${success}">Signup successful! Please login.</p>
+            <p class="text-danger mt-2" th:if="${error}" th:text="${error}"></p>
+
+        </form>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="signup-right">
+        <img src="https://cdn-icons-png.flaticon.com/512/3039/3039436.png" alt="signup image">
+    </div>
+
+</div>
+
+</body>
+</html>

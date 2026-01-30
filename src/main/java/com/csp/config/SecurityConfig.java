@@ -89,6 +89,11 @@ public class SecurityConfig {
                 .failureUrl("/login?error")
                 .permitAll()
             )
+            .sessionManagement(session -> session
+                    .invalidSessionUrl("/login?expired")
+                    .maximumSessions(1)        // one login per user
+                    .expiredUrl("/login?expired")
+                )
 
             // 🚪 LOGOUT CONFIG
             .logout(logout -> logout

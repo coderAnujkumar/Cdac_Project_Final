@@ -89,7 +89,13 @@ public class ApplicationService {
 
     public List<Application> getVerifiedApplications() {
         return applicationRepository.findByStatus("VERIFIED");
+        
     }
+    
+    public List<Application> getClerkVerifiedApplications() {
+        return applicationRepository.findByClerkVerifiedTrue();
+    }
+
 
     public List<Application> getApplicationsByCitizen(int citizenId) {
         return applicationRepository.findByCitizenCitizenId(citizenId);

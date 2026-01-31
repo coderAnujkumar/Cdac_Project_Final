@@ -1,6 +1,7 @@
 package com.csp.controller;
 
 import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -20,11 +21,14 @@ import com.csp.entity.Citizen;
 import com.csp.service.ApplicationService;
 import com.csp.service.CitizenService;
 
-@Controller
+
+//citizen profile features:
+
+@Controller //Marks this class as a Spring MVC controller
 @RequestMapping("/citizen/profile")
 public class CitizenProfileController {
 
-    private static final String UPLOAD_DIR = "uploads/profile/";
+    private static final String UPLOAD_DIR = "uploads/profile/"; //Location where profile photos are stored
 
     @Autowired
     private CitizenService citizenService;
@@ -40,11 +44,11 @@ public class CitizenProfileController {
 
         Citizen citizen = citizenService.getCitizenByEmail(email);
 
-        List<Application> applications =
+        List<Application> applications =//Fetch Applications
                 applicationService.getApplicationsByCitizen(citizen.getCitizenId());
 
         model.addAttribute("citizen", citizen);
-        model.addAttribute("applications", applications); // for stats if needed
+        model.addAttribute("applications", applications); // for status if needed
 
         return "profile";
     }
@@ -52,7 +56,7 @@ public class CitizenProfileController {
     // ================= UPDATE NAME + PHOTO =================
     @PostMapping("/update")
     public String updateProfile(@RequestParam String name,
-                                @RequestParam(required = false) MultipartFile photo,
+                                @RequestParam(required = false) MultipartFile photo,//photo is optional
                                 Principal principal,
                                 RedirectAttributes ra) {
 
@@ -61,20 +65,24 @@ public class CitizenProfileController {
         try {
             if (photo != null && !photo.isEmpty()) {
 
+                //check file if not present create folder
                 Path uploadPath = Paths.get(UPLOAD_DIR);
-                if (!Files.exists(uploadPath)) {
+                if (!Files.exists(uploadPath)) {//Prevents FileNotFoundException
                     Files.createDirectories(uploadPath);
                 }
 
+                //for unique file name to avoid conflicts
                 fileName = UUID.randomUUID() + "_" + photo.getOriginalFilename();
-
+                
+                //copy uploaded file to server and replace existing
                 Files.copy(photo.getInputStream(),
                         uploadPath.resolve(fileName),
                         StandardCopyOption.REPLACE_EXISTING);
             }
 
-            citizenService.updateCitizenProfile(principal.getName(), name, fileName);
+            citizenService.updateCitizenProfile(principal.getName(), name, fileName); //update to database
 
+          //send data from one request to the next request after a redirect.
             ra.addFlashAttribute("success", "Profile updated successfully");
 
         } catch (Exception e) {
@@ -82,7 +90,7 @@ public class CitizenProfileController {
             ra.addFlashAttribute("error", "Profile update failed");
         }
 
-        return "redirect:/citizen/profile";
+        return "redirect:/citizen/profile"; //redirect to same page profile page  
     }
 
     // ================= CHANGE PASSWORD =================
@@ -93,9 +101,10 @@ public class CitizenProfileController {
                                  RedirectAttributes ra) {
 
         boolean ok = citizenService.changePassword(
-                principal.getName(), oldPassword, newPassword);
+                principal.getName(), oldPassword, newPassword); //verified ald password Encrypts new password Updates DB
 
         if (ok)
+        	//send data from one request to the next request after a redirect.
             ra.addFlashAttribute("success", "Password changed successfully");
         else
             ra.addFlashAttribute("error", "Old password is incorrect");

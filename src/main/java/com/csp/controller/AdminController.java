@@ -21,17 +21,18 @@ public class AdminController {
     // ================= DASHBOARD =================
 
     @GetMapping("/dashboard")
-    public String adminDashboard(Model model) {
+    public String adminDashboard(Model model) { //Fetches statistics from DB:total applications,approved,rejected
         model.addAttribute("totalApps", adminService.countAllApplications());
         model.addAttribute("approvedApps", adminService.countByStatus("APPROVED"));
         model.addAttribute("rejectedApps", adminService.countByStatus("REJECTED"));
         return "admin-dashboard";
+        // it use application table 
     }
 
     // ================= APPLICATION MONITORING =================
 
-    @GetMapping("/applications")
-    public String viewAllApplications(Model model) {
+    @GetMapping("/applications") //Fetches all applications Sends list to UI
+    public String viewAllApplications(Model model) { //Controller to View Data send krna Model used
         model.addAttribute("applications", adminService.getAllApplications());
         return "admin-applications";
     }
@@ -40,15 +41,17 @@ public class AdminController {
 
     @GetMapping("/create-user")
     public String createUserPage(Model model) {
+    	//Thymeleaf form needs an object
         model.addAttribute("clerk", new Clerk());
         model.addAttribute("officer", new Officer());
         return "admin-create-user";
     }
 
     @PostMapping("/create-clerk")
+    //@ModelAttribute Automatically maps form fields → Clerk object
     public String createClerk(@ModelAttribute Clerk clerk) {
         adminService.createClerk(clerk);
-        return "redirect:/admin/dashboard";
+        return "redirect:/admin/dashboard";  //redirect o dashboard page 
     }
 
     @PostMapping("/create-officer")
@@ -74,8 +77,8 @@ public class AdminController {
         return "admin-manage-users";
     }
 
-    @GetMapping("/clerk/toggle/{id}")
-    public String toggleClerk(@PathVariable int id) {
+    @GetMapping("/clerk/toggle/{id}")  
+    public String toggleClerk(@PathVariable int id) {  //pathvariable use in url /id type
         adminService.toggleClerkStatus(id);
         return "redirect:/admin/manage-users";
     }

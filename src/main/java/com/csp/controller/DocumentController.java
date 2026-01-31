@@ -21,7 +21,8 @@ public class DocumentController {
     // ✅ SAME FOLDER AS UPLOAD
     private static final String UPLOAD_DIR =
             "/Users/anujkumar/Desktop/Cdac Project/uploads/documents/";
-
+    
+//constructor injection
     private final DocumentRepository documentRepository;
 
     public DocumentController(DocumentRepository documentRepository) {
@@ -31,16 +32,16 @@ public class DocumentController {
     @GetMapping("/view/{id}")
     public ResponseEntity<ByteArrayResource> viewDocument(@PathVariable int id) throws IOException {
 
-        System.out.println("DOCUMENT VIEW API HIT: " + id);
-
+        System.out.println("DOCUMENT VIEW API HIT: " + id); //check api work proper or not 
+//create object of document
         Document doc = documentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new RuntimeException("Document not found")); //fatch document if found else throw error
 
         Path path = Paths.get(UPLOAD_DIR + doc.getFilePath());
 
         System.out.println("FILE PATH = " + path);
 
-        if (!Files.exists(path)) {
+        if (!Files.exists(path)) { //404 Not Found
             System.out.println("FILE NOT FOUND");
             return ResponseEntity.notFound().build();
         }
@@ -49,8 +50,8 @@ public class DocumentController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + doc.getDocumentName() + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new ByteArrayResource(data));
+                        "inline; filename=\"" + doc.getDocumentName() + "\"") //opens in browser
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)  //document type
+                .body(new ByteArrayResource(data)); //Wraps byte[] so Spring can send it properly
     }
 }

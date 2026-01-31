@@ -4,23 +4,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
- * DashboardController
- * --------------------
- * Redirects logged-in users to their respective dashboards
- * based on assigned roles.
- */
+// Redirects logged-in users to their respective dashboards
 @Controller
 public class DashboardController {
 
-    /**
-     * After successful login, user is redirected here.
-     * Role is checked and user is sent to correct dashboard.
-     */
+    
     @GetMapping("/dashboard")
     public String redirectDashboard(Authentication authentication) {
 
         // Fetch logged-in user's role
+    	//Provided by Spring Security
         String role = authentication
                         .getAuthorities()
                         .iterator()

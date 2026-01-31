@@ -13,13 +13,15 @@ import com.csp.security.CustomAuthenticationSuccessHandler;
 import com.csp.security.CustomUserDetailsService;
 
 @Configuration
-@EnableMethodSecurity
-public class SecurityConfig {
+@EnableMethodSecurity //method-level security ON karna //@PreAuthorize, @PostAuthorize
+//role / permission 
 
+public class SecurityConfig {
+//	DEPENDENCY INJECTION/ ya autowired annotation ka use krke bhi same kaam hota hai;
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final CustomAuthenticationSuccessHandler successHandler;
-
+//constructor injection
     public SecurityConfig(
             CustomUserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder,
@@ -30,31 +32,33 @@ public class SecurityConfig {
         this.successHandler = successHandler;
     }
 
-    // ================= AUTHENTICATION MANAGER =================
-    @Bean
+    // ================= AUTHENTICATION MANAGER ================= WHO ARE YOU?=====
+    @Bean // create object 
+    //AuthenticationManager is an interface 
     public AuthenticationManager authenticationManager(HttpSecurity http)
             throws Exception {
 
         AuthenticationManagerBuilder builder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-
+// Shared Some object that is already in spring 
         builder
-            .userDetailsService(userDetailsService)
+            .userDetailsService(userDetailsService) // CustomUserDetailsService etches user from DB
             .passwordEncoder(passwordEncoder);
 
         return builder.build();
     }
 
-    // ================= SECURITY FILTER CHAIN =================
+    // ================= SECURITY FILTER CHAIN ============ WHO CAN ACCESS WHAT?=======
     @Bean
+    //heart of Spring Security.
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
-
+            .csrf(csrf -> csrf.disable()) //Cross-Site Request Forgery
+//Spring Security use CSRF Token  REST API (Postman, React, Angular) csrf disable 
             .authorizeHttpRequests(auth -> auth
 
-                // 🌍 PUBLIC PAGES
+                // anyone can access these url no need login
                 .requestMatchers(
                     "/",
                     "/index",
@@ -66,14 +70,14 @@ public class SecurityConfig {
                     "/reset-password"
                 ).permitAll()
 
-                // 🌐 STATIC RESOURCES
+                // check static file 
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
-                // 📄 DOCUMENT ACCESS
+                // Documents folder Download documents,View uploaded files
                 .requestMatchers("/documents/**")
                     .hasAnyRole("CITIZEN", "CLERK", "OFFICER", "ADMIN")
 
-                // 🔐 ROLE-BASED DASHBOARDS
+                // ROLE-BASED DASHBOARDS
                 .requestMatchers("/citizen/**").hasRole("CITIZEN")
                 .requestMatchers("/clerk/**").hasRole("CLERK")
                 .requestMatchers("/officer/**").hasRole("OFFICER")
@@ -84,9 +88,9 @@ public class SecurityConfig {
 
             // 🔑 LOGIN CONFIG
             .formLogin(form -> form
-                .loginPage("/login")
+                .loginPage("/login") // open login page
                 .successHandler(successHandler)
-                .failureUrl("/login?error")
+                .failureUrl("/login?error") // login fail 
                 .permitAll()
             )
             .sessionManagement(session -> session
@@ -95,7 +99,7 @@ public class SecurityConfig {
                     .expiredUrl("/login?expired")
                 )
 
-            // 🚪 LOGOUT CONFIG
+            //  LOGOUT CONFIG
             .logout(logout -> logout
                 .logoutSuccessUrl("/")
                 .permitAll()

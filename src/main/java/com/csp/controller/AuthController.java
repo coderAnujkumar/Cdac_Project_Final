@@ -18,24 +18,25 @@ import com.csp.service.StatusService;
 import com.csp.service.UserService;
 
 //this class will handle web pages & requests and show login page show signup page registuer new user 
-@Controller
+//handles authentication-related web pages and actions:
+@Controller  //This class handles web requests and returns HTML pages
 public class AuthController {
 
     @Autowired  //Dependency Injection. automaticaly create a object of userService 
     private UserService userService;
 
-    @Autowired  //Dependency Injection. automaticaly create a object of CitizenService 
+    @Autowired  
     private CitizenService citizenService;
 
-    @Autowired  //Dependency Injection. automaticaly create a object of StatusService 
+    @Autowired  
     private StatusService statusService;
 
-    @Autowired  //Dependency Injection. automaticaly create a object of PasswordEncoder 
+    @Autowired  
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/login")   // this api is for open login page anly read 
+    @GetMapping("/login")   // this api is for open login page only read 
     public String loginPage() {
-        return "login";
+        return "login"; //Spring Security uses this page for authentication
     }
 
     @GetMapping("/signup") //Sends empty object to form with field of SignupRequest
@@ -55,8 +56,8 @@ public class AuthController {
         if (result.hasErrors()) {  //If form is wrong reload signup page
             return "signup";
         }
-
-        if (userService.userExists(signup.getEmail())) { //Calls Service -> Repository -> DB Prevents duplicate email
+//Calls Service -> Repository -> DB Prevents duplicate email
+        if (userService.userExists(signup.getEmail())) { 
             model.addAttribute("error", "Email already registered!");
             return "signup";
         }
@@ -76,7 +77,7 @@ public class AuthController {
             Citizen citizen = new Citizen();  //create an object of citizen
             citizen.setName(signup.getName());
             citizen.setEmail(signup.getEmail());
-            citizen.setMobile(signup.getMobile());   // ✅ added
+            citizen.setMobile(signup.getMobile()); 
             citizen.setPassword(user.getPassword()); // encrypted password
             citizen.setStatus(activeStatus);
 

@@ -20,6 +20,9 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
     List<Application> findByStatusAndServiceType(String status, String serviceType);
 
     List<Application> findByStatusOrderByApplicationDateAsc(String status);
+    
+    List<Application> findByClerkVerifiedTrue();
+
 
     @Query("SELECT a FROM Application a JOIN FETCH a.citizen WHERE a.applicationId = :id")
     Application findByIdWithCitizen(@Param("id") int id);

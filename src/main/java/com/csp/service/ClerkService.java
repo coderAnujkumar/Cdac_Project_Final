@@ -10,125 +10,74 @@ import com.csp.entity.Clerk;
 import com.csp.repository.ApplicationRepository;
 import com.csp.repository.ClerkRepository;
 
-/**
- * ClerkService
- * -------------
- * This service handles all business logic related to
- * CLERK operations in the system.
- *
- * Clerk Responsibilities:
- * - View submitted applications
- * - Verify applications after document checking
- * - Reject applications if documents are invalid
- *
- * This service acts as an intermediate layer between
- * Controller and Repository.
- */
 @Service
 public class ClerkService {
 
-    /**
-     * Repository used to perform CRUD operations
-     * on Application entity.
-     */
     @Autowired
     private ApplicationRepository applicationRepository;
-    
+
     @Autowired
     private StatusHistoryService historyService;
-    
+
     @Autowired
     private ClerkRepository clerkRepository;
 
-    /**
-     * Fetch all applications with status = SUBMITTED.
-     *
-     * These applications are pending verification
-     * by the clerk and will be shown on Clerk Dashboard.
-     *
-     * @return list of submitted applications
-     */
+    // Fetch all submitted applications
     public List<Application> getSubmittedApplications() {
         return applicationRepository.findByStatus("SUBMITTED");
     }
 
-    /**
-     * Fetch a specific application by its ID.
-     *
-     * Used when clerk wants to view full details
-     * of an application before taking action.
-     *
-     * @param applicationId unique identifier of application
-     * @return Application entity
-     * @throws RuntimeException if application not found
-     */
+    // Get application by ID
     public Application getApplicationById(int applicationId) {
         return applicationRepository.findById(applicationId)
-                .orElseThrow(() ->
-                        new RuntimeException("Application not found with ID: " + applicationId));
+                .orElseThrow(() -> new RuntimeException("Application not found"));
     }
 
-    /**
-     * Verify an application after successful document verification.
-     *
-     * Business Flow:
-     * - Clerk verifies documents
-     * - Application status is updated to VERIFIED
-     * - Application becomes available for Officer review
-     *
-     * @param applicationId application identifier
-     */
-    public void verifyApplication(int applicationId) {
-        Application app = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+    // Verify application and mark clerk verification
+    public void verifyApplication(int applicationId, String clerkName) {
 
-        String oldStatus = app.getStatus();   // SUBMITTED
+        Application app = getApplicationById(applicationId);
+        String oldStatus = app.getStatus();
 
-        app.setStatus("VERIFIED");
+        app.setClerkVerified(true);       // Mark clerk verification done
+        app.setVerifiedBy(clerkName);     // Store clerk name
+        app.setStatus("VERIFIED");        // Update workflow status
+
         applicationRepository.save(app);
 
-        // 🧾 Save history
         historyService.logStatusChange(
                 app,
                 oldStatus,
                 "VERIFIED",
                 "CLERK",
-                "ClerkUser" // later replace with logged-in username
+                clerkName
         );
     }
 
-
-    /**
-     * Reject an application if documents are invalid
-     * or information is incorrect.
-     *
-     * Business Flow:
-     * - Clerk rejects application
-     * - Status is updated to REJECTED
-     * - Application process stops here
-     *
-     * @param applicationId application identifier
-     */
+    // Reject application by clerk
     public void rejectApplication(int applicationId, String reason, String clerkName) {
 
-        // Fetch application
-        Application application = getApplicationById(applicationId);
+        Application app = getApplicationById(applicationId);
+        String oldStatus = app.getStatus();
 
-        // Update status
-        application.setStatus("REJECTED_BY_CLERK");
-        application.setRejectionReason(reason);
-        application.setRejectedBy("Clerk: " + clerkName);
+        app.setStatus("REJECTED_BY_CLERK");   // Mark rejection stage
+        app.setRejectionReason(reason);       // Save reason
+        app.setRejectedBy("Clerk: " + clerkName); // Store who rejected
 
-        // Save updated application
-        applicationRepository.save(application);
-        
-       
+        applicationRepository.save(app);
+
+        historyService.logStatusChange(
+                app,
+                oldStatus,
+                "REJECTED_BY_CLERK",
+                "CLERK",
+                clerkName
+        );
     }
-    
-    
+
+    // Get clerk by email
     public Clerk getClerkByEmail(String email) {
         return clerkRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Clerk not found with email: " + email));
+                .orElseThrow(() -> new RuntimeException("Clerk not found"));
     }
-
 }

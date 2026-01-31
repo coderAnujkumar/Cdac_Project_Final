@@ -31,8 +31,8 @@ public class ClerkController {
     @GetMapping("/dashboard")
     public String clerkDashboard(
             @RequestParam(required = false) String serviceType,
-            Model model,
-            Principal principal) {
+            Model model, //send data to UI
+            Principal principal) { //logged-in clerk info
 
         String email = principal.getName();
         Clerk clerk = clerkService.getClerkByEmail(email);
@@ -41,6 +41,7 @@ public class ClerkController {
 
         List<Application> pendingApps;
 
+//        Shows all submitted applications
         if (serviceType == null || serviceType.equals("ALL")) {
             pendingApps = applicationService.getApplicationsByStatus("SUBMITTED");
             model.addAttribute("selectedService", "ALL");
@@ -52,7 +53,7 @@ public class ClerkController {
         model.addAttribute("pendingApps", pendingApps);
 
         model.addAttribute("verifiedApps",
-                applicationService.getApplicationsByStatus("VERIFIED"));
+                applicationService.getClerkVerifiedApplications());
 
         model.addAttribute("rejectedApps",
                 applicationService.getRejectedApplications());
@@ -63,8 +64,9 @@ public class ClerkController {
     @GetMapping("/application/{id}")
     public String viewApplication(@PathVariable int id, Model model) {
 
+    	//fetch Application
         Application app = clerkService.getApplicationById(id);
-        List<Document> documents = documentService.getDocumentsByApplicationId(id);
+        List<Document> documents = documentService.getDocumentsByApplicationId(id); //fatch documents
 
         model.addAttribute("app", app);
         model.addAttribute("documents", documents);
@@ -73,8 +75,10 @@ public class ClerkController {
     }
 
     @PostMapping("/verify/{id}")
-    public String verifyApplication(@PathVariable int id) {
-        clerkService.verifyApplication(id);
+    public String verifyApplication(@PathVariable int id, Principal principal) {
+    	//Status → VERIFIED Verified by → clerk name
+        String clerkName = clerkService.getClerkByEmail(principal.getName()).getName(); //fatch name 
+        clerkService.verifyApplication(id, clerkName);
         return "redirect:/clerk/dashboard";
     }
 
@@ -84,10 +88,8 @@ public class ClerkController {
             @RequestParam String reason,
             Principal principal) {
 
-        String clerkEmail = principal.getName();
-        Clerk clerk = clerkService.getClerkByEmail(clerkEmail);
-
-        clerkService.rejectApplication(id, reason, clerk.getName());
+        String clerkName = clerkService.getClerkByEmail(principal.getName()).getName();
+        clerkService.rejectApplication(id, reason, clerkName);
 
         return "redirect:/clerk/dashboard";
     }
